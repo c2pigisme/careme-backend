@@ -3,10 +3,11 @@
 # ~~~~
 
 # Home page
-POST    /register                               Application.register()
-POST    /login                               Application.login
+POST    /register                              Application.register()
+POST    /login                                 Application.login
 POST    /session                               Application.session
-
+POST    /contact/care                          Application.care 
+POST    /contact/share                         Application.share
 
 OPTIONS /{path}                                 Application.options
 

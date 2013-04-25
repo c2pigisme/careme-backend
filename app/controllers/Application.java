@@ -1,11 +1,15 @@
 package controllers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import com.google.gson.Gson;
 import com.jamonapi.utils.Logger;
 
+import models.CMR;
+import models.JsonRequest;
 import models.JsonResponse;
 import models.Session;
 import models.User;
@@ -17,6 +21,8 @@ import play.mvc.Http.Header;
 
 public class Application extends Controller {
 
+	private static Gson gson = new Gson();
+	
 	@Before
 	static void CORS() {
 	    if(request.headers.containsKey("origin")){
@@ -111,7 +117,30 @@ public class Application extends Controller {
 		renderJSON(new JsonResponse("NOK", "Invalid Username or Password"));
 	}
 	
-	public static void options() {
+	public static void options() {}
+
+	public static void care(String json) {
+		System.out.println(json);
+		JsonRequest request = gson.fromJson(json, JsonRequest.class);
+		
+		CMR cmr = new CMR(request.targetPhoneNumber,"pending");
+		User u = User.find("byPhoneNumber", request.sourcePhoneNumber).first();
+		
+		if(u.cares == null) {
+			u.cares = new HashMap<String, CMR>();
+		}
+		if(!u.cares.containsKey(request.targetPhoneNumber)) {
+			u.cares.put(request.targetPhoneNumber, cmr);	
+		} else {
+			renderJSON(new JsonResponse("NOK", String.format("Care request has been sent for number(%s)", request.targetPhoneNumber)));
+		}
+		
+		u.save();
+		renderJSON(new JsonResponse("OK", "Add to care list"));
+	}
+	
+	public static void share(String json) {
+		
 	}
 	
 }
