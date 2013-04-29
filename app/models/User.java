@@ -1,6 +1,7 @@
 package models;
 
 import java.util.Date;
+
 import java.util.List;
 import java.util.Map;
 
@@ -21,14 +22,16 @@ public class User extends Model {
 	public String weight;
 	public String bloodType;
 	public String phoneNumber;
+	public String gcmId;
 	public Date registrationDate;
+	public Date lastActivity;
 	
 	@Embedded
 	public List<String> bmiRecords;
 	@Embedded
 	public Map<String, CMR> cares;
 	@Embedded
-	public List<CMR> shares;
+	public Map<String, CMR> shares;
 	@Embedded
 	public List<CMR> pending;
 }

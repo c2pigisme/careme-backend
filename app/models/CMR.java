@@ -11,10 +11,17 @@ import play.modules.morphia.Model;
 public class CMR extends Model {
 	public String phone;
 	public String status;
+	public String type;
 	public Date requestDate = new Date();
+
+	public CMR(String phone) {
+		this.phone = phone;
+		type = "s";
+	}
 	
 	public CMR(String phone, String status) {
 		this.phone = phone;
 		this.status = status;
+		type = "c";
 	}
 }
