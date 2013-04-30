@@ -6,11 +6,17 @@
 POST    /register                              Application.register()
 POST    /login                                 Application.login
 POST    /session                               Application.session
-POST    /contact/care                          Application.care 
-POST    /contact/share                         Application.share
+POST    /contact/care                          Application.careAdd 
+POST    /contact/share                         Application.shareAdd
 
-OPTIONS /{path}                                 Application.options
+#JSONP
+GET    /store/care                            Application.carelist
+GET    /store/share                           Application.sharelist
 
+GET    /messaging/?                           Application.gcm
+
+OPTIONS /{path}*                                 Application.options
+OPTIONS /{path}/{path1}/?                       Application.options
 
 
 #OPTIONS  /register                              Registration.cors();
