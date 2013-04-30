@@ -6,12 +6,15 @@
 POST    /register                              Application.register()
 POST    /login                                 Application.login
 POST    /session                               Application.session
-POST    /contact/care                          Application.careAdd 
+POST    /contact/care                          Application.careAdd
 POST    /contact/share                         Application.shareAdd
+DELETE  /contact/care                          Application.careDel
+DELETE  /contact/care                          Application.shareDel
+DELETE  /contact/care                          Application.carelist
+DELETE  /contact/care                          Application.sharelist
 
-#JSONP
-GET    /store/care                            Application.carelist
-GET    /store/share                           Application.sharelist
+
+OPTIONS /{path}                                 Application.options
 
 GET    /messaging/?                           Application.gcm
 
