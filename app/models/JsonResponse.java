@@ -14,6 +14,11 @@ public class JsonResponse {
 		this.message = message;
 	}
 	
+    public JsonResponse(String status, String message, JsonElement body) {
+        this.status = status;
+        this.message = message;
+    }
+	
 	public JsonResponse(String session, String status, String message) {
 		this.session = session;
 		this.status = status;
