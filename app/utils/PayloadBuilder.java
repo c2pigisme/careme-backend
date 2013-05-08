@@ -1,8 +1,10 @@
 package utils;
 
+import models.JsonRequest;
+
 public class PayloadBuilder {
 
-	public static String buildAddCareMessage(String s, String t) {
+	public static String buildAddCareMessage(JsonRequest req) {
 		return "{buildAddCareMessage:'not implement'}";
 	}
 	

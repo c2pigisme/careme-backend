@@ -26,6 +26,8 @@ public class User extends Model {
 	public Date registrationDate;
 	public Date lastActivity;
 	
+	@Embedded 
+	public List<Reminder> reminders;
 	@Embedded
 	public List<String> bmiRecords;
 	@Embedded

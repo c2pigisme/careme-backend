@@ -6,7 +6,8 @@ public class JsonRequest {
 	
 	public String displayName;
 	public String targetPhoneNumber;
-	public String email;
+	public String srcEmail;
+	public String targetEmail;
 	public String sourcePhoneNumber;
 	
 }

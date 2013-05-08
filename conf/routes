@@ -6,12 +6,19 @@
 POST    /register                              Application.register()
 POST    /login                                 Application.login
 POST    /session                               Application.session
-POST    /contact/care                          Application.careAdd
-POST    /contact/share                         Application.shareAdd
+GET    /contact/care                          Application.carelist
 DELETE  /contact/care                          Application.careDel
-DELETE  /contact/care                          Application.shareDel
-DELETE  /contact/care                          Application.carelist
-DELETE  /contact/care                          Application.sharelist
+POST    /contact/care                          Application.careAdd
+
+POST    /contact/share                         Application.shareAdd
+GET    /contact/share                          Application.sharelist
+PUT     /contact/share                         Application.shareApprove
+DELETE  /contact/share                         Application.shareDel
+
+POST   /events                                 Application.addEvent
+PUT    /events                                 Application.shareEvent
+
+
 
 
 OPTIONS /{path}                                 Application.options

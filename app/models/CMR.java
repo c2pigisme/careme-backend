@@ -9,19 +9,19 @@ import play.modules.morphia.Model;
 //CMR = CareMeRecord
 @Entity
 public class CMR extends Model {
-	public String phone;
-	public String status;
-	public String type;
+	public String targetPhoneNumber;
+	public int status;
+	public String displayName;
+	public String email;
 	public Date requestDate = new Date();
-
-	public CMR(String phone) {
-		this.phone = phone;
-		type = "s";
-	}
 	
-	public CMR(String phone, String status) {
-		this.phone = phone;
+	public CMR(String phone, int status) {
+		this.targetPhoneNumber = phone;
 		this.status = status;
-		type = "c";
+	}
+	public CMR(String phone, String email, int status) {
+		this.email = email;
+		this.targetPhoneNumber = phone;
+		this.status = status;
 	}
 }
