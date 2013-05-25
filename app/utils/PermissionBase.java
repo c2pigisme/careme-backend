@@ -43,7 +43,7 @@ public class PermissionBase {
 	    if(targetUser == null) {
 	       JsonObject obj = new JsonObject();
 	       obj.addProperty("action", "sms");
-	       obj.addProperty("message", "Please join care me");
+	       obj.addProperty("message", "I\'m using CareMe healthcare app, please download it from google playstore: http://bit.ly/13qv128 so that i can add you to my list");
 	       if(srcUser.cares.containsKey(target)) {
 	    	   return new JsonResponse(NOK, "Selected user has been added to care list");   
 	       }

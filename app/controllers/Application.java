@@ -1,6 +1,7 @@
 package controllers;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 
 
 
@@ -17,8 +18,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.jamonapi.utils.Logger;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.MongoClient;
 
 import models.CMR;
+import models.Clinic;
 import models.JsonRequest;
 import models.JsonResponse;
 import models.Reminder;
@@ -43,6 +48,9 @@ import play.mvc.Util;
 public class Application extends Controller {
 
 	private static Gson gson = new Gson();
+	private static MongoClient mongoClient;
+	private static DB db;
+	private static DBCollection coll;
 	
 	@Before
 	static void CORS() {
@@ -53,7 +61,7 @@ public class Application extends Controller {
 	    }
 	}
 	
-	@Before(unless={"login", "register", "session", "options", "gcm", "logout"})
+	@Before(unless={"login", "register", "session", "options", "gcm", "logout", "nearByClinic"})
 	static void checkSession(String email, String session) {
 		
 		System.out.println("=== checking session ======");
@@ -61,9 +69,9 @@ public class Application extends Controller {
 		Session s = Session.find("byEmail", email).first();
 		if(s == null || (!s.session.equals(session))) {
 			System.out.println("!!!! Session Not Matched !!!!");
+			System.out.println(String.format("Email(%s) - Session(%s) - DBSession(%s)", email, session, s.session));
 			renderJSON(new JsonResponse(NOK, "Session Not Matched"));	
-		}
-		
+		}		
 		System.out.println(String.format("Email(%s) - Session(%s) - DBSession(%s)", email, session, s.session));
 	}
 	
@@ -80,18 +88,28 @@ public class Application extends Controller {
 			u.save();		
 			registerLogin(u.email, originPassword);
 		}
-		
 	}
 	
 	public static void session(String email, String session, String gcmId) {
 		Session s = Session.find("byEmail", email).first();
-		if(s != null && s.session.equals(session)) {
-			JsonResponse sess = new JsonResponse(OK, s.session, "Session Matched");
-			renderJSON(sess);
+		
+		if(s == null || !s.session.equals(session)) {
+			renderJSON(new JsonResponse(NOK, "Session Not Matched"));
+		}		
+		
+		User u = User.find("byEmail", email).first();
+		if(u != null) {
+			if(u.gcmId == null || !u.gcmId.equals(gcmId)) {
+				u.gcmId = gcmId;
+				u.save();
+			}
+			
 		}
 		System.out.println("Session : " + session);
 		System.out.println("Email : " + email);
-		renderJSON(new JsonResponse(NOK, "Session Not Matched"));		
+		System.out.println("GCM : " + gcmId);
+		JsonResponse sess = new JsonResponse(OK, s.session, "Session Matched");
+		renderJSON(sess);
 	}
 	
 	static void registerLogin(String email, String password) {
@@ -112,7 +130,7 @@ public class Application extends Controller {
 				
 				Session session = new Session(UUID.randomUUID().toString(), u.email);
 				session.save();
-				
+				Logger.log(String.format("Save new session(%s)", session.session));
 				JsonResponse login = new JsonResponse(OK, session.session, "Login Successfully");
 				
 				renderJSON(login);
@@ -255,29 +273,65 @@ public class Application extends Controller {
 		
 	}
 	//TODO: REMOVE LATER
-	public static void gcm(String msg, String regKey, String type) throws IOException {
+	public static void gcm(String regKey, String payload, String title, String subtitle, String nid) throws IOException {
 		
 		//title , message , payload
 		Sender sender = new Sender("AIzaSyCL2UN3dmT2nnOvUhANS296yUygKdjiyM8");
     	Builder messageBuilder = new Message.Builder();
-    	messageBuilder.addData("message", msg);
-    	messageBuilder.addData("type", type);
+    	messageBuilder.addData("payload", payload);
+    	messageBuilder.addData("title", title);
+    	messageBuilder.addData("subtitle", subtitle);
+    	messageBuilder.addData("notificationId", nid);
     	Message message = messageBuilder.build();
     	Result result = sender.send(message, regKey, 1);
     	renderText(result.getMessageId() + " -- " + result.getErrorCodeName() + " --- " + result.getCanonicalRegistrationId());
 	}
 
-	public static void addEvent(String email, String json) {
+	public static void addOwnEvent(String email, String json) {
 		System.out.println("Add Event : " + json);
 		Reminder reminder = gson.fromJson(json, Reminder.class);
 		JsonResponse resp = addReminder(email, reminder);
 		renderJSON(resp);
 	}
 
-	public static void shareEvent(String json) {
-		System.out.println("Share Event : " + json);
+	public static void careEvent(String json) {
+		System.out.println("Care Event : " + json);
 		JsonResponse resp = addReminder("", null);
 		renderJSON(new JsonResponse(OK, ""));
 	}
 
+	public static void nearByClinic(double lat, double lng, double btwKm1,double  btwKm2) throws InterruptedException {
+		System.out.println("Latitude : " + lat);
+		System.out.println("Longitude : " + lng);
+		Thread.sleep(3000);
+		try {
+			if(mongoClient == null) {
+				mongoClient = new MongoClient();
+				db = mongoClient.getDB("careme");
+				coll = db.getCollection("clinics");
+			}
+			
+			List<Clinic> fromClinics = MorphiaQuery.ds()
+					.createQuery(Clinic.class)
+					.field("loc").near(lat, lng, btwKm1/111.12).asList();
+
+			List<Clinic> toClinics = MorphiaQuery.ds()
+					.createQuery(Clinic.class)
+					.field("loc").near(lat, lng, btwKm2/111.12).asList();			
+			
+			List<Clinic> clinics = new ArrayList<Clinic>();
+			
+			for(Clinic c : toClinics) {
+				if(! fromClinics.contains(c)) {
+					clinics.add(c);
+				}
+			}
+			
+			renderJSON(clinics);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }
