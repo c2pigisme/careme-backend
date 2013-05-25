@@ -6,27 +6,28 @@
 POST    /register                              Application.register()
 POST    /login                                 Application.login
 POST    /session                               Application.session
-GET    /contact/care                          Application.carelist
-DELETE  /contact/care                          Application.careDel
-POST    /contact/care                          Application.careAdd
-
+<<<<<<< HEAD
+POST    /contact/care                          Application.careAdd 
 POST    /contact/share                         Application.shareAdd
-GET    /contact/share                          Application.sharelist
-PUT     /contact/share                         Application.shareApprove
-DELETE  /contact/share                         Application.shareDel
+=======
+POST    /contact/care                          Application.careAdd
+POST    /contact/share                         Application.shareAdd
+DELETE  /contact/care                          Application.careDel
+DELETE  /contact/care                          Application.shareDel
+DELETE  /contact/care                          Application.carelist
+DELETE  /contact/care                          Application.sharelist
 
-POST   /events/myself                          Application.addOwnEvent
-POST   /events/ff                              Application.careEvent
+>>>>>>> 9f22f9c9aec1c3f3efa0c17d38c6002b3cf0ac01
 
+#JSONP
+GET    /store/care                            Application.carelist
+GET    /store/share                           Application.sharelist
 
-
-
-OPTIONS /{path}                                 Application.options
-GET     /nearby/clinic                           Application.nearByClinic
 GET    /messaging/?                           Application.gcm
 
 OPTIONS /{path}*                                 Application.options
 OPTIONS /{path}/{path1}/?                       Application.options
+
 
 #OPTIONS  /register                              Registration.cors();
 
@@ -38,6 +39,3 @@ GET     /public/                                staticDir:public
 
 # Catch all
 *       /{controller}/{action}                  {controller}.{action}
-
-
-
