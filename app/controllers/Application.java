@@ -283,10 +283,30 @@ public class Application extends Controller {
     	messageBuilder.addData("subtitle", subtitle);
     	messageBuilder.addData("notificationId", nid);
     	Message message = messageBuilder.build();
-    	Result result = sender.send(message, regKey, 1);
+    	Result result = sender.send(message, regKey, 1); 
     	renderText(result.getMessageId() + " -- " + result.getErrorCodeName() + " --- " + result.getCanonicalRegistrationId());
 	}
 
+	//TODO: REMOVE LATER
+	static void sendGCM(String regKey, String payload, String phoneNumber) throws IOException {
+		
+		
+		String title = "Care reminder" , subtitle = "You have a care reminder from " + phoneNumber, nid = "1";
+		//title , message , payload
+		Sender sender = new Sender("AIzaSyCL2UN3dmT2nnOvUhANS296yUygKdjiyM8");
+		JsonObject obj = new JsonObject();
+		obj.addProperty("event", "message");
+		obj.addProperty("payload", payload);
+    	Builder messageBuilder = new Message.Builder();
+    	messageBuilder.addData("payload", obj.getAsString());
+    	messageBuilder.addData("title", title);
+    	messageBuilder.addData("subtitle", subtitle);
+    	messageBuilder.addData("notificationId", nid);
+    	Message message = messageBuilder.build();
+    	Result result = sender.send(message, regKey, 1); 
+    	renderText(result.getMessageId() + " -- " + result.getErrorCodeName() + " --- " + result.getCanonicalRegistrationId());
+	}	
+	
 	public static void addOwnEvent(String email, String json) {
 		System.out.println("Add Event : " + json);
 		Reminder reminder = gson.fromJson(json, Reminder.class);
@@ -296,7 +316,19 @@ public class Application extends Controller {
 
 	public static void careEvent(String json) {
 		System.out.println("Care Event : " + json);
-		JsonResponse resp = addReminder("", null);
+		Reminder reminder = gson.fromJson(json, Reminder.class);
+		User u = User.find("byPhoneNumber", reminder.fromPhoneNumber).first();
+		
+		if(u == null || u.gcmId == null) {
+			renderJSON(new JsonResponse(NOK, "user not exist"));
+		}
+		
+		try {
+			sendGCM(u.gcmId, json, reminder.fromPhoneNumber);
+		} catch (IOException e) {
+			renderJSON(new JsonResponse(NOK, "gcm error"));
+		}
+		
 		renderJSON(new JsonResponse(OK, ""));
 	}
 
